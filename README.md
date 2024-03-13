@@ -24,6 +24,10 @@ Insert Raspberry Pi Pico to target Windows pc and exfiltrate wifi profile (SSID 
 ## Possible Issues
 * No output if target pc missing or disenabled wifi adapter.
 
+## Disclaimer
+* Payloads from this repository are provided for educational purposes only.
+* As with any script, you are advised to proceed with caution.
+
 ## Credits
 * https://github.com/I-Am-Jakoby/PowerShell-for-Hackers
 * https://github.com/hak5/usbrubberducky-payloads/tree/bf2dfb7c17d0661624bb418c9576cc9fc51f8832/payloads/library/credentials/Browser-Passwords-Dropbox-Exfiltration
