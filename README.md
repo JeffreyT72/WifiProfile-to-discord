@@ -9,20 +9,20 @@
 Insert Raspberry Pi Pico to target Windows pc and exfiltrate wifi profile (SSID and password). Then send the file via discord webhook.
 
 ## Features
-* Reasonably stelathy - powershell script run in the background
+* Reasonably stealthy - powershell script runs in the background
 * Fairly quick        - one line of command on Pico-Ducky
 
 ## Setup
 1. Follow https://github.com/dbisu/pico-ducky to install Pico-Ducky
 2. Download wifi-profile-to-discord.ps1
 3. Create a discord webhook and replace the webhook link inside the powershell script
-4. Upload edited powershell script to dropbox and copy the share link
+4. Upload the edited powershell script to dropbox and copy the share link
 5. Download payload.dd
 6. Replace the dropbox share link inside payload.dd
 7. Upload payload.dd to Pico-Ducky
 
 ## Possible Issues
-* No output if target pc missing or disenabled wifi adapter.
+* No output if target pc missing or disabled wifi adapter.
 
 ## Disclaimer
 * Payloads from this repository are provided for educational purposes only.
