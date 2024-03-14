@@ -1,6 +1,6 @@
 # WifiProfile-to-discord
 - Author: JeffreyT72
-- Version: 1.0
+- Version: 2.0
 - Target: Windows (Powershell 5.1+)
 - Category: exfiltration
 - Attackmode: HID then OFF
@@ -22,7 +22,7 @@ Insert Raspberry Pi Pico to target Windows pc and exfiltrate wifi profile (SSID 
 7. Upload payload.dd to Pico-Ducky
 
 ## Possible Issues
-* No output if target pc missing or disabled wifi adapter.
+* Fixed - No output if target pc missing or disabled wifi adapter.
 
 ## Disclaimer
 * Payloads from this repository are provided for educational purposes only.
